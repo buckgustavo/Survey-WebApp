@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block titulo %}Minha Area - Survey App{% endblock %}
+{% block conteudo %}
+<div class="content-header">
+    <h1>Minha Area</h1>
+    <p>{{ total_respondidas }} pesquisa{% if total_respondidas != 1 %}s{% endif %} respondida{% if total_respondidas != 1 %}s{% endif %}</p>
+</div>
+<div class="content-body">
+
+<p class="section-label">Pendentes</p>
+{% if pendentes %}
+{% for p in pendentes %}
+<div class="feed-item">
+    <div class="feed-icon">{{ p.titulo|first|upper }}</div>
+    <div class="feed-body">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;">
+            <div>
+                <p class="feed-title">{{ p.titulo }}</p>
+                <p class="feed-meta">{{ p.questoes|length }} questao{% if p.questoes|length != 1 %}es{% endif %} &middot; <span class="badge badge-aberta">Aberta</span></p>
+            </div>
+            <a href="{% url 'pesquisa-responder' p.id %}" class="btn btn-primary" style="flex-shrink:0;">Responder</a>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="empty-state">Voce respondeu todas as pesquisas abertas.</div>
+{% endif %}
+
+<p class="section-label">Respondidas</p>
+{% if concluidas %}
+{% for p in concluidas %}
+<div class="feed-item">
+    <div class="feed-icon" style="color:#4ADE80;background:var(--success-glow);border-color:rgba(34,197,94,.25);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="feed-body">
+        <p class="feed-title">{{ p.titulo }}</p>
+        <p class="feed-meta"><span class="badge badge-aberta">Aberta</span> &middot; Participacao registrada</p>
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="empty-state">Nenhuma pesquisa respondida ainda.</div>
+{% endif %}
+
+<p class="section-label">Resultados disponiveis</p>
+{% if concluidas_fechadas %}
+{% for p in concluidas_fechadas %}
+<div class="feed-item">
+    <div class="feed-icon" style="color:#A78BFA;background:var(--accent-glow);border-color:rgba(124,58,237,.25);">{{ p.titulo|first|upper }}</div>
+    <div class="feed-body">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;">
+            <div>
+                <p class="feed-title">{{ p.titulo }}</p>
+                <p class="feed-meta"><span class="badge badge-fechada">Encerrada</span> &middot; Voce participou</p>
+            </div>
+            <a href="{% url 'pesquisa-resultados' p.id %}" class="btn btn-secondary" style="flex-shrink:0;">Ver Resultados</a>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="empty-state">Nenhum resultado disponivel ainda.</div>
+{% endif %}
+
+</div>
+{% endblock %}

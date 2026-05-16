@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block titulo %}Resultados - {{ resultado.titulo }}{% endblock %}
+{% block estilos_extras %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+{% block conteudo %}
+<div class="page-header">
+    <a href="{% url 'home' %}" class="back-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <div>
+        <h1>{{ resultado.titulo }}</h1>
+        <p>{{ resultado.total_respondentes }} respondente{% if resultado.total_respondentes != 1 %}s{% endif %}</p>
+    </div>
+</div>
+<div class="page-body">
+{% for questao in resultado.questoes %}
+<div style="margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid var(--border);">
+    <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:.4rem;">Questao {{ forloop.counter }}</p>
+    <p style="font-weight:600;font-size:1rem;margin-bottom:1.25rem;">{{ questao.texto_questao }}</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;">
+        <div>
+        {% for r in questao.resultados %}
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border);">
+            <span style="font-size:.875rem;color:var(--text-muted);">{{ r.texto_opcao }}</span>
+            <span style="font-weight:700;color:var(--accent);">{{ r.contagem }}</span>
+        </div>
+        {% endfor %}
+        </div>
+        <canvas id="grafico-{{ questao.questao_id }}" height="140"></canvas>
+    </div>
+</div>
+{% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+Chart.defaults.color = '#A1A1AA';
+Chart.defaults.borderColor = '#27272A';
+Chart.defaults.font.family = "'Geist', system-ui, sans-serif";
+const cores = ['#7C3AED','#A78BFA','#6D28D9','#C4B5FD','#4C1D95'];
+{% for questao in resultado.questoes %}
+new Chart(document.getElementById('grafico-{{ questao.questao_id }}'), {
+    type: 'bar',
+    data: {
+        labels: [{% for r in questao.resultados %}'{{ r.texto_opcao }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{ data: [{% for r in questao.resultados %}{{ r.contagem }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: cores, borderRadius: 8, borderSkipped: false }]
+    },
+    options: {
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1, color: '#71717A' }, grid: { color: '#27272A' } },
+            x: { ticks: { color: '#71717A' }, grid: { display: false } }
+        }
+    }
+});
+{% endfor %}
+</script>
+{% endblock %}

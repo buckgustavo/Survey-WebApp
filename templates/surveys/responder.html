@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ pesquisa.titulo }} - Survey App{% endblock %}
+{% block estilos_extras %}
+<style>
+    .opcao-label {
+        display: flex;
+        align-items: center;
+        gap: .875rem;
+        padding: .875rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-bottom: .5rem;
+        cursor: pointer;
+        transition: border-color 150ms, background 150ms;
+        font-size: .9375rem;
+    }
+    .opcao-label:hover { border-color: var(--accent); background: var(--accent-glow); }
+    .opcao-label input[type="radio"] { accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; }
+    .questao-bloco { padding: 1.25rem 0; border-bottom: 1px solid var(--border); }
+    .questao-bloco:last-of-type { border-bottom: none; }
+</style>
+{% endblock %}
+{% block conteudo %}
+<div class="page-header">
+    <a href="{% url 'home' %}" class="back-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <div>
+        <h1>{{ pesquisa.titulo }}</h1>
+        <p>{{ pesquisa.questoes|length }} questao{% if pesquisa.questoes|length != 1 %}es{% endif %}</p>
+    </div>
+</div>
+<div class="page-body">
+    {% if erro %}<p style="color:#FCA5A5;margin-bottom:1.25rem;font-size:.875rem;">{{ erro }}</p>{% endif %}
+    <form method="post">
+        {% csrf_token %}
+        {% for questao in pesquisa.questoes %}
+        <div class="questao-bloco">
+            <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:.4rem;">Questao {{ forloop.counter }}</p>
+            <p style="font-weight:600;margin-bottom:.875rem;">{{ questao.texto }}</p>
+            {% for opcao in questao.opcoes %}
+            <label class="opcao-label">
+                <input type="radio" name="questao_{{ questao.id }}" value="{{ opcao.id }}">
+                {{ opcao.texto }}
+            </label>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        <div style="display:flex;gap:.75rem;margin-top:1.5rem;">
+            <button type="submit" class="btn btn-primary">Enviar Respostas</button>
+            <a href="{% url 'home' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

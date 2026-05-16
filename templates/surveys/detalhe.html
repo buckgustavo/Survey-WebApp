@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ pesquisa.titulo }} - Survey App{% endblock %}
+{% block estilos_extras %}
+<style>
+    .questao-card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: .875rem;
+        background: var(--surface);
+    }
+    .questao-num {
+        font-size: .7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: var(--accent);
+        margin-bottom: .375rem;
+    }
+    .questao-texto {
+        font-weight: 600;
+        font-size: .9375rem;
+        margin-bottom: .875rem;
+    }
+    .opcao-preview {
+        display: flex;
+        align-items: center;
+        gap: .625rem;
+        padding: .45rem 0;
+        color: var(--text-muted);
+        font-size: .875rem;
+        border-bottom: 1px solid var(--border);
+    }
+    .opcao-preview:last-child { border-bottom: none; }
+    .opcao-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 2px solid var(--border-hover);
+        flex-shrink: 0;
+    }
+</style>
+{% endblock %}
+{% block conteudo %}
+<div class="page-header">
+    <a href="{% url 'home' %}" class="back-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <div style="flex:1;min-width:0;">
+        <h1 style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ pesquisa.titulo }}</h1>
+        <p>{{ pesquisa.questoes|length }} questao{% if pesquisa.questoes|length != 1 %}es{% endif %} &middot;
+            <span class="badge badge-{{ pesquisa.status }}">{{ pesquisa.status|capfirst }}</span>
+        </p>
+    </div>
+</div>
+
+<div class="page-body">
+
+    {% if pesquisa.status == 'aberta' %}
+        {% if not user.is_authenticated %}
+        <div style="background:var(--accent-glow);border:1px solid rgba(124,58,237,.3);border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;">
+            <p style="font-size:.9rem;color:var(--text-muted);">Entre para participar desta pesquisa.</p>
+            <a href="{% url 'login' %}?next={% url 'pesquisa-responder' pesquisa.id %}" class="btn btn-primary">Entrar e Responder</a>
+        </div>
+        {% elif user.eh_coordenador %}
+        <div style="display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+            <a href="{% url 'pesquisa-responder' pesquisa.id %}" class="btn btn-primary">Responder Pesquisa</a>
+            <form method="post" action="{% url 'pesquisa-fechar' pesquisa.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Encerrar</button>
+            </form>
+        </div>
+        {% elif ja_respondeu %}
+        <div style="background:var(--success-glow);border:1px solid rgba(34,197,94,.25);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <p style="font-size:.875rem;color:#4ADE80;">Voce ja respondeu esta pesquisa.</p>
+        </div>
+        {% else %}
+        <div style="margin-bottom:1.5rem;">
+            <a href="{% url 'pesquisa-responder' pesquisa.id %}" class="btn btn-primary" style="font-size:.9375rem;padding:.6rem 1.5rem;">Responder Pesquisa</a>
+        </div>
+        {% endif %}
+    {% elif pesquisa.status == 'fechada' %}
+    <div style="margin-bottom:1.5rem;">
+        <a href="{% url 'pesquisa-resultados' pesquisa.id %}" class="btn btn-secondary" style="font-size:.9375rem;padding:.6rem 1.5rem;">Ver Resultados</a>
+    </div>
+    {% elif pesquisa.status == 'rascunho' and user.eh_coordenador %}
+    <div style="margin-bottom:1.5rem;">
+        <form method="post" action="{% url 'pesquisa-abrir' pesquisa.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success" style="font-size:.9375rem;padding:.6rem 1.5rem;">Abrir para Respostas</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <div>
+        {% for questao in pesquisa.questoes %}
+        <div class="questao-card">
+            <p class="questao-num">Questao {{ forloop.counter }}</p>
+            <p class="questao-texto">{{ questao.texto }}</p>
+            {% for opcao in questao.opcoes %}
+            <div class="opcao-preview">
+                <span class="opcao-dot"></span>
+                {{ opcao.texto }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block titulo %}Criar Conta - Survey App{% endblock %}
+{% block conteudo %}
+<div class="page-header">
+    <div>
+        <h1>Criar Conta</h1>
+        <p>Comece a participar gratuitamente</p>
+    </div>
+</div>
+<div class="page-body" style="max-width:400px;">
+    {% if form.non_field_errors %}
+    <ul class="mensagens" style="padding:0;margin-bottom:1rem;">
+        {% for erro in form.non_field_errors %}<li class="error">{{ erro }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        {% for campo in form %}
+        <div class="form-group">
+            <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+            {{ campo }}
+            {% if campo.errors %}<p class="erro-campo">{{ campo.errors|join:', ' }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:.65rem;border-radius:9999px;font-size:.9375rem;margin-top:.5rem;">Criar Conta</button>
+    </form>
+    <p style="margin-top:1.25rem;text-align:center;color:var(--text-muted);font-size:.875rem;">
+        Ja tem conta? <a href="{% url 'login' %}" style="color:var(--accent);text-decoration:none;font-weight:600;">Entrar</a>
+    </p>
+</div>
+{% endblock %}
