@@ -154,4 +154,4 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ---
 
-<p align="center">Code by<a href="https://github.com/buckgustavo">G.Buck</a></p>
+<p align="center">Code by <a href="https://github.com/buckgustavo">G.Buck</a></p>
